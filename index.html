@@ -596,14 +596,25 @@
       </div>
       <div class="item-row">
         <div class="item-info">
-          <div class="item-name">ドッグフード・キャットフード（ドライ）</div>
-          <div style="font-size:12px;color:var(--muted)">中型犬1日250g・猫1日60g目安</div>
+          <div class="item-name">🐶 ドッグフード（ドライ）</div>
+          <div style="font-size:12px;color:var(--muted)">中型犬1日250g目安</div>
         </div>
         <div>
-          <div class="item-qty" id="petfood-qty">—</div>
+          <div class="item-qty" id="petfood-dog-qty">—</div>
           <div class="item-unit">kg</div>
         </div>
-        <a class="affiliate-btn" id="petfood-link" href="#" target="_blank" rel="noopener">Amazonで見る</a>
+        <a class="affiliate-btn" id="petfood-dog-link" href="#" target="_blank" rel="noopener">Amazonで見る</a>
+      </div>
+      <div class="item-row">
+        <div class="item-info">
+          <div class="item-name">🐱 キャットフード（ドライ）</div>
+          <div style="font-size:12px;color:var(--muted)">猫1日60g目安</div>
+        </div>
+        <div>
+          <div class="item-qty" id="petfood-cat-qty">—</div>
+          <div class="item-unit">kg</div>
+        </div>
+        <a class="affiliate-btn" id="petfood-cat-link" href="#" target="_blank" rel="noopener">Amazonで見る</a>
       </div>
       <div class="item-row">
         <div class="item-info">
@@ -762,7 +773,7 @@
 
 <script>
 // ===== アフィリエイトタグをここに入力 =====
-const AMAZON_TAG = 'sasakitamotu-22'; // ← ★ここを自分のアソシエイトIDに変更
+const AMAZON_TAG = 'あなたのタグ-22'; // ← ★ここを自分のアソシエイトIDに変更
 
 const ASINS = {
   water: 'B07F1CCSJZ',  // ← これに変更
@@ -789,6 +800,8 @@ petfood_cat:  'B09R1LRB6T', // キャットフード猫用（要変更）
   adultDiaper:  'B07HC5FFS5',
   careWipe:     'B0C4XHYYF1',
   careFood:     'B0D7PW4CWV',
+
+
 };
 
 function amazonUrl(asin) {
@@ -868,16 +881,19 @@ function calculate() {
   // ── ペット ──
   show('pet-section', pets > 0);
   if (pets > 0) {
-    const petfoodKg   = (pets * days * 0.16).toFixed(1); // 中型犬160g/日
+    const petfoodDogKg = (pets * days * 0.25).toFixed(1); // 中型犬250g/日
+    const petfoodCatKg = (pets * days * 0.06).toFixed(2); // 猫60g/日
     const petwaterL   = pets * days * 1;
     const petsheets   = pets * days * 4;
     const petcarry    = pets;
-    setText('petfood-qty',   petfoodKg);
+    setText('petfood-dog-qty', petfoodDogKg);
+    setText('petfood-cat-qty', petfoodCatKg);
     setText('petwater-qty',  petwaterL);
     setText('petsheet-qty',  petsheets);
     setText('petcarry-qty',  petcarry);
     setText('pet-count-label', `${pets}頭分`);
-    setLink('petfood-link',   ASINS.petfood);
+    setLink('petfood-dog-link', ASINS.petfood_dog);
+    setLink('petfood-cat-link', ASINS.petfood_cat);
     setLink('petwater-link',  ASINS.petwater);
     setLink('petsheet-link',  ASINS.petsheet);
     setLink('petcarry-link',  ASINS.petcarry);
