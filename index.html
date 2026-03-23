@@ -541,6 +541,19 @@
         </div>
         <a class="affiliate-btn" id="wet-link" href="#" target="_blank" rel="noopener">Amazonで見る</a>
       </div>
+      <!-- ↓ 生理用品（追加） -->
+      <div class="item-row">
+        <div class="item-info">
+          <div class="item-name">生理用品</div>
+          <div style="font-size:12px;color:var(--muted)">必要な人は1周期分以上を目安に</div>
+        </div>
+        <div>
+          <div class="item-qty">1</div>
+          <div class="item-unit">パック</div>
+        </div>
+        <a class="affiliate-btn" id="sanitary-link" href="https://www.amazon.co.jp/s?k=生理用品+まとめ買い&tag=sasakitamotu-22" target="_blank" rel="noopener">Amazonで見る</a>
+      </div>
+      <!-- ↑ 生理用品（追加ここまで） -->
     </div>
 
     <!-- 赤ちゃん・乳幼児 -->
@@ -782,26 +795,27 @@
 
 <script>
 // ===== アフィリエイトタグをここに入力 =====
-const AMAZON_TAG = 'sasakitamotu-22'; // ← ★ここを自分のアソシエイトIDに変更
+const AMAZON_TAG = 'sasakitamotu-22';
 
 const ASINS = {
-  water: 'B07F1CCSJZ',  // ← これに変更
+  water: 'B07F1CCSJZ',
   rice:         'B00YC3M1K8',
   retort:       'B084RZ3QRD',
   noodle:       'B084RDW619',
   can:          'B0FN47ZGTS',
-  gas: 'B000AQY0L4',  // ← これに変更
+  gas: 'B000AQY0L4',
   battery:      'B0F3CQC8JL',
   tp:           'B008AZDTAA',
   wet:          'B09TZSCSKS',
+  sanitary:     '', // ← ASINが決まったら入力。空のままだと検索URLにフォールバック
   // 赤ちゃん
   milk:         'B01N6EL2MJ',
   diaper:       'B08HQZVG28',
   babywipe:     'B0B3WHQLLM',
   babyfood:     'B0DMK8WPY2',
   // ペット
-  petfood_dog:  'B07D6GXJQQ', // ドッグフード犬用（要変更）
-petfood_cat:  'B09R1LRB6T', // キャットフード猫用（要変更）
+  petfood_dog:  'B07D6GXJQQ',
+  petfood_cat:  'B09R1LRB6T',
   petwater:     'B00BTOSMCY',
   petsheet:     'B07JGBB8GD',
   petcarry:     'B00OP6SMCI',
@@ -809,16 +823,18 @@ petfood_cat:  'B09R1LRB6T', // キャットフード猫用（要変更）
   adultDiaper:  'B07HC5FFS5',
   careWipe:     'B0C4XHYYF1',
   careFood:     'B0D7PW4CWV',
-
-
 };
 
 function amazonUrl(asin) {
   return `https://www.amazon.co.jp/dp/${asin}?tag=${AMAZON_TAG}`;
 }
-function setLink(id, asin) {
+function amazonSearchUrl(keyword) {
+  return `https://www.amazon.co.jp/s?k=${encodeURIComponent(keyword)}&tag=${AMAZON_TAG}`;
+}
+function setLink(id, asin, fallbackKeyword) {
   const el = document.getElementById(id);
-  if (el && asin) el.href = amazonUrl(asin);
+  if (!el) return;
+  el.href = asin ? amazonUrl(asin) : amazonSearchUrl(fallbackKeyword || '');
 }
 function show(id, visible) {
   document.getElementById(id).style.display = visible ? '' : 'none';
@@ -834,8 +850,6 @@ function calculate() {
   const pets    = parseInt(document.getElementById('pets').value)     || 0;
   const elderly = parseInt(document.getElementById('elderly').value)  || 0;
   const days    = parseInt(document.getElementById('days').value)     || 7;
-
-  const totalPeople = members + babies + elderly;
 
   // ── 基本 ──
   const water   = (members + elderly) * days * 3;
@@ -868,13 +882,15 @@ function calculate() {
   setLink('battery-link', ASINS.battery);
   setLink('tp-link',      ASINS.tp);
   setLink('wet-link',     ASINS.wet);
+  // 生理用品：ASINあればdp/、なければ検索URL
+  setLink('sanitary-link', ASINS.sanitary, '生理用品 まとめ買い');
 
   // ── 赤ちゃん ──
   show('baby-section', babies > 0);
   if (babies > 0) {
-    const milkCans   = Math.ceil(babies * days * 8 / 130); // 1缶130回分
+    const milkCans   = Math.ceil(babies * days * 8 / 130);
     const diapers    = babies * days * 7;
-    const babywipes  = Math.ceil(babies * days * 17 / 80); // 80枚入り
+    const babywipes  = Math.ceil(babies * days * 17 / 80);
     const babyfood   = babies * days * 3;
     setText('milk-qty',     milkCans);
     setText('diaper-qty',   diapers);
@@ -890,8 +906,8 @@ function calculate() {
   // ── ペット ──
   show('pet-section', pets > 0);
   if (pets > 0) {
-    const petfoodDogKg = (pets * days * 0.25).toFixed(1); // 中型犬250g/日
-    const petfoodCatKg = (pets * days * 0.06).toFixed(2); // 猫60g/日
+    const petfoodDogKg = (pets * days * 0.25).toFixed(1);
+    const petfoodCatKg = (pets * days * 0.06).toFixed(2);
     const petwaterL   = pets * days * 1;
     const petsheets   = pets * days * 4;
     const petcarry    = pets;
@@ -950,7 +966,7 @@ function calculate() {
   if (babies)  shareText += `👶おむつ：${babies * days * 7}枚\n`;
   if (pets)    shareText += `🐾ペットフード：${(pets * days * 0.16).toFixed(1)}kg\n`;
   if (elderly) shareText += `👴介護食：${elderly * days * 3}食\n`;
-  shareText += `\n▼無料計算ツール\n`;
+  shareText += `\n▼無料計算ツール\nhttps://siki0524-a11y.github.io/bichiku-checker/`;
   document.getElementById('twitter-share').href =
     `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
 
