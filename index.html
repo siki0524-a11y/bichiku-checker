@@ -1,371 +1,338 @@
 <!DOCTYPE html>
+<!--
+  ================================================================
+  家庭備蓄目安確認ツール（自治体向け試作版）
+  ================================================================
+  【主な修正内容】
+  - Xシェアボタン・関連CSS・JS を完全削除
+  - タイトル・見出し・説明文を公益寄りの中立表現に変更
+  - ヘッダーバッジを「防災啓発支援ツール」に変更
+  - 計算ボタン文言を落ち着いた表現に変更
+  - TIPSの「物価上昇前に買う」を削除（営利色のため）
+  - フッターを試作ツール・公的判断の補足に差し替え
+  - 更新日・制作者情報プレースホルダをフッターに追加
+  - 全角引用符・en dash・CSS変数記法などの記号を正規化
+  - インデント崩れ・余分な空白を整理
+  ================================================================
+-->
 <html lang="ja">
 <head>
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-GEN8GVESYC"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>家庭備蓄の目安確認ツール</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=DM+Mono:wght@400;500&display=swap');
 
-  gtag('config', 'G-GEN8GVESYC');
-</script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>非常時備蓄チェッカー｜家族の人数・日数から必要量を計算</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=DM+Mono:wght@400;500&display=swap');
+    :root {
+      --bg: #f5f7f2;
+      --surface: #ffffff;
+      --surface2: #f0f4ed;
+      --border: #dde5d8;
+      --accent: #4a7c59;
+      --accent2: #2d6a8f;
+      --text: #1e2b1a;
+      --muted: #6b7c66;
+      --green: #4a7c59;
+    }
 
-  :root {
-    --bg: #f5f7f2;
-    --surface: #ffffff;
-    --surface2: #f0f4ed;
-    --border: #dde5d8;
-    --accent: #4a7c59;
-    --accent2: #2d6a8f;
-    --text: #1e2b1a;
-    --muted: #6b7c66;
-    --green: #4a7c59;
-  }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Noto Sans JP', sans-serif;
+      min-height: 100vh;
+      padding: 0;
+    }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Noto Sans JP', sans-serif;
-    min-height: 100vh;
-    padding: 0;
-  }
+    /* HEADER */
+    .header {
+      background: var(--accent);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-badge {
+      background: rgba(255,255,255,0.25);
+      color: #fff;
+      font-weight: 700;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 2px;
+      letter-spacing: 0.05em;
+    }
+    .header-title {
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.05em;
+      color: #fff;
+    }
 
-  /* HEADER */
-  .header {
-    background: var(--accent);
-    padding: 12px 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .header-badge {
-    background: rgba(255,255,255,0.25);
-    color: #fff;
-    font-weight: 700;
-    font-size: 11px;
-    padding: 3px 8px;
-    border-radius: 2px;
-    letter-spacing: 0.05em;
-  }
-  .header-title {
-    font-weight: 700;
-    font-size: 13px;
-    letter-spacing: 0.05em;
-    color: #fff;
-  }
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 28px 16px 60px;
+    }
 
-  .container {
-    max-width: 680px;
-    margin: 0 auto;
-    padding: 28px 16px 60px;
-  }
+    /* HERO */
+    .hero {
+      margin-bottom: 32px;
+    }
+    .hero h1 {
+      font-size: clamp(20px, 5vw, 28px);
+      font-weight: 900;
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+    .hero p {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.9;
+      border-left: 2px solid var(--border);
+      padding-left: 12px;
+    }
 
-  /* HERO */
-  .hero {
-    margin-bottom: 32px;
-  }
-  .hero h1 {
-    font-size: clamp(22px, 5vw, 32px);
-    font-weight: 900;
-    line-height: 1.3;
-    margin-bottom: 10px;
-  }
-  .hero h1 span {
-    color: var(--accent);
-  }
-  .hero p {
-    color: var(--muted);
-    font-size: 13px;
-    line-height: 1.8;
-    border-left: 2px solid var(--border);
-    padding-left: 12px;
-  }
+    /* INPUTS */
+    .calc-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 28px;
+    }
+    .calc-panel h2 {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .inputs-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .input-group label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.04em;
+    }
+    .input-group input,
+    .input-group select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 20px;
+      font-family: 'DM Mono', monospace;
+      font-weight: 500;
+      padding: 12px 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .input-group input:focus,
+    .input-group select:focus {
+      border-color: var(--accent);
+    }
+    .input-group select {
+      font-size: 14px;
+      font-family: 'Noto Sans JP', sans-serif;
+      cursor: pointer;
+    }
+    .calc-btn {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 16px;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .calc-btn:hover { opacity: 0.9; }
+    .calc-btn:active { transform: scale(0.99); }
 
-  /* INPUTS */
-  .calc-panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 24px;
-    margin-bottom: 28px;
-  }
-  .calc-panel h2 {
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 20px;
-  }
-  .inputs-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 20px;
-  }
-  .input-group label {
-    display: block;
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 6px;
-    letter-spacing: 0.04em;
-  }
-  .input-group input,
-  .input-group select {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--text);
-    font-size: 20px;
-    font-family: 'DM Mono', monospace;
-    font-weight: 500;
-    padding: 12px 14px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .input-group input:focus,
-  .input-group select:focus {
-    border-color: var(--accent);
-  }
-  .input-group select {
-    font-size: 14px;
-    font-family: 'Noto Sans JP', sans-serif;
-    cursor: pointer;
-  }
-  .calc-btn {
-    width: 100%;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-family: 'Noto Sans JP', sans-serif;
-    font-weight: 900;
-    font-size: 16px;
-    padding: 16px;
-    cursor: pointer;
-    letter-spacing: 0.06em;
-    transition: opacity 0.2s, transform 0.1s;
-  }
-  .calc-btn:hover { opacity: 0.9; }
-  .calc-btn:active { transform: scale(0.99); }
+    /* RESULTS */
+    .results { display: none; }
+    .results.show { display: block; }
 
-  /* RESULTS */
-  .results {
-    display: none;
-  }
-  .results.show { display: block; }
+    .result-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .result-header h2 {
+      font-size: 17px;
+      font-weight: 900;
+    }
+    .result-badge {
+      background: var(--green);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 2px;
+    }
 
-  .result-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-  .result-header h2 {
-    font-size: 18px;
-    font-weight: 900;
-  }
-  .result-badge {
-    background: var(--green);
-    color: #000;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 2px;
-  }
+    .category {
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .category-header {
+      background: var(--surface2);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .category-header .icon { font-size: 18px; }
+    .category-header h3 {
+      font-size: 14px;
+      font-weight: 700;
+      flex: 1;
+    }
+    .category-header .count-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--accent2);
+    }
 
-  .category {
-    margin-bottom: 20px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  .category-header {
-    background: var(--surface2);
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .category-header .icon { font-size: 18px; }
-  .category-header h3 {
-    font-size: 14px;
-    font-weight: 700;
-    flex: 1;
-  }
-  .category-header .total-cost {
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    color: var(--accent2);
-  }
+    .item-row {
+      padding: 14px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .item-info { flex: 1; }
+    .item-name {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .item-desc {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .item-qty-wrap { text-align: right; min-width: 80px; }
+    .item-qty {
+      font-family: 'DM Mono', monospace;
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--accent2);
+    }
+    .item-unit {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
 
-  .item-row {
-    padding: 14px 16px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .item-info { flex: 1 }
-  .item-name {
-    font-size: 14px;
-    font-weight: 700;
-    margin-bottom: 2px;
-  }
-  .item-qty {
-    font-family: 'DM Mono', monospace;
-    font-size: 20px;
-    font-weight: 500;
-    color: var(--accent2);
-    text-align: right;
-    min-width: 90px;
-  }
-  .item-unit {
-    font-size: 11px;
-    color: var(--muted);
-    text-align: right;
-    margin-top: 2px;
-  }
+    /* SUMMARY */
+    .summary-box {
+      background: linear-gradient(135deg, #eef4ea, #e8f0f5);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 28px;
+    }
+    .summary-box h3 {
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      margin-bottom: 14px;
+    }
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .summary-item:last-child { border-bottom: none; }
+    .summary-item .val {
+      font-family: 'DM Mono', monospace;
+      color: var(--accent2);
+      font-weight: 500;
+    }
 
-  .affiliate-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    color: var(--accent2);
-    font-size: 11px;
-    font-weight: 700;
-    padding: 6px 10px;
-    text-decoration: none;
-    white-space: nowrap;
-    transition: background 0.2s, border-color 0.2s;
-    letter-spacing: 0.03em;
-  }
-  .affiliate-btn:hover {
-    background: #dbeaf5;
-    border-color: var(--accent2);
-  }
-  .affiliate-btn::before { content: '🛒'; font-size: 12px; }
+    /* TIPS */
+    .tips { margin-top: 32px; }
+    .tips h2 {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+    .tip-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      font-size: 13px;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+    .tip-card strong { color: var(--text); }
 
-  /* SUMMARY */
-  .summary-box {
-    background: linear-gradient(135deg, #eef4ea, #e8f0f5);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 20px;
-    margin-top: 28px;
-  }
-  .summary-box h3 {
-    font-size: 13px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 14px;
-  }
-  .summary-item {
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-    padding: 5px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .summary-item:last-child { border-bottom: none; }
-  .summary-item .val {
-    font-family: 'DM Mono', monospace;
-    color: var(--accent2);
-    font-weight: 500;
-  }
+    /* FOOTER */
+    .footer-note {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 2.0;
+    }
+    .footer-meta {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: #aaa;
+      line-height: 2.0;
+    }
 
-  /* TIPS */
-  .tips {
-    margin-top: 32px;
-  }
-  .tips h2 {
-    font-size: 15px;
-    font-weight: 900;
-    margin-bottom: 14px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--border);
-  }
-  .tip-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 14px 16px;
-    margin-bottom: 10px;
-    font-size: 13px;
-    line-height: 1.8;
-    color: var(--muted);
-  }
-  .tip-card strong { color: var(--text); }
-
-  /* SHARE */
-  .share-area {
-    margin-top: 32px;
-    text-align: center;
-  }
-  .share-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: #1da1f2;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    padding: 12px 24px;
-    font-family: 'Noto Sans JP', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    text-decoration: none;
-  }
-
-  .footer-note {
-    margin-top: 40px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border);
-    font-size: 11px;
-    color: #555;
-    line-height: 1.8;
-  }
-
-  @media (max-width: 480px) {
-    .inputs-row { grid-template-columns: 1fr; }
-    .item-row { flex-wrap: wrap; }
-  }
-</style>
+    @media (max-width: 480px) {
+      .inputs-row { grid-template-columns: 1fr; }
+      .item-row { flex-wrap: wrap; }
+    }
+  </style>
 </head>
 <body>
 
 <div class="header">
-  <span class="header-badge">備蓄サポート</span>
-  <span class="header-title">非常時備蓄チェッカー 2025</span>
+  <span class="header-badge">防災啓発支援ツール</span>
+  <span class="header-title">家庭備蓄の目安確認ツール（試作版）</span>
 </div>
 
 <div class="container">
 
   <div class="hero">
-    <h1>家族に合わせた<br><span>備蓄量を計算しよう</span></h1>
+    <h1>家族構成に応じた<br>家庭備蓄の目安</h1>
     <p>
-      人数と日数を入力するだけで、何をどれだけ準備すればいいか一覧で確認できます。<br>
-      赤ちゃん・ペット・高齢者がいるご家庭にも対応しています。
+      人数や日数などの条件から、家庭で備えておきたい物資の目安を確認できます。<br>
+      乳幼児・ペット・高齢者がいるご家庭にも対応しています。
     </p>
   </div>
 
-  <!-- CALCULATOR -->
+  <!-- 入力フォーム -->
   <div class="calc-panel">
-    <h2>▸ 条件を入力</h2>
+    <h2>▸ 家族構成・備蓄期間を入力</h2>
     <div class="inputs-row">
       <div class="input-group">
         <label>大人・子どもの人数</label>
@@ -397,19 +364,19 @@
         <input type="number" id="elderly" value="0" min="0" max="10">
       </div>
       <div class="input-group" style="display:flex;align-items:flex-end">
-        <div style="font-size:11px;color:var(--muted);line-height:1.7;padding-bottom:4px">
-          ペット：中型犬・猫1頭換算<br>高齢者：常備薬・介護用品を追加計算
+        <div style="font-size:11px;color:var(--muted);line-height:1.8;padding-bottom:4px">
+          ペット：中型犬・猫1頭換算<br>高齢者：常備薬・介護用品を追加表示
         </div>
       </div>
     </div>
-    <button class="calc-btn" onclick="calculate()">必要量を計算する →</button>
+    <button class="calc-btn" onclick="calculate()">目安を確認する</button>
   </div>
 
-  <!-- RESULTS -->
+  <!-- 結果 -->
   <div class="results" id="results">
     <div class="result-header">
-      <h2 id="result-title">計算結果</h2>
-      <span class="result-badge">✓ 計算済み</span>
+      <h2 id="result-title">目安一覧</h2>
+      <span class="result-badge">算出完了</span>
     </div>
 
     <!-- 水 -->
@@ -421,13 +388,12 @@
       <div class="item-row">
         <div class="item-info">
           <div class="item-name">飲料水・生活用水</div>
-          <div style="font-size:12px;color:var(--muted)">1人1日3L（飲料+調理+衛生）</div>
+          <div class="item-desc">1人1日3L（飲料・調理・衛生用途の合計）</div>
         </div>
-        <div>
-          <div class="item-qty" id="water-qty">—</div>
+        <div class="item-qty-wrap">
+          <div class="item-qty" id="water-qty">-</div>
           <div class="item-unit">リットル</div>
         </div>
-        <a class="affiliate-btn" id="water-link" href="#" target="_blank" rel="noopener">Amazonで見る</a>
       </div>
     </div>
 
@@ -440,46 +406,42 @@
       <div class="item-row">
         <div class="item-info">
           <div class="item-name">白米・無洗米</div>
-          <div style="font-size:12px;color:var(--muted)">1人1日0.15kg（茶碗2〜3杯分）</div>
+          <div class="item-desc">1人1日0.15kg（茶碗2〜3杯分）</div>
         </div>
-        <div>
-          <div class="item-qty" id="rice-qty">—</div>
+        <div class="item-qty-wrap">
+          <div class="item-qty" id="rice-qty">-</div>
           <div class="item-unit">kg</div>
         </div>
-        <a class="affiliate-btn" id="rice-link" href="#" target="_blank" rel="noopener">Amazonで見る</a>
       </div>
       <div class="item-row">
         <div class="item-info">
-          <div class="item-name">レトルト食品（カレー・パスタソース等）</div>
-          <div style="font-size:12px;color:var(--muted)">1人1食1パック、1日2食分</div>
+          <div class="item-name">レトルト食品</div>
+          <div class="item-desc">1人1日2食分（カレー・パスタソース等）</div>
         </div>
-        <div>
-          <div class="item-qty" id="retort-qty">—</div>
+        <div class="item-qty-wrap">
+          <div class="item-qty" id="retort-qty">-</div>
           <div class="item-unit">パック</div>
         </div>
-        <a class="affiliate-btn" id="retort-link" href="#" target="_blank" rel="noopener">Amazonで見る</a>
       </div>
       <div class="item-row">
         <div class="item-info">
           <div class="item-name">インスタント麺・カップ麺</div>
-          <div style="font-size:12px;color:var(--muted)">1人1日1食分</div>
+          <div class="item-desc">1人1日1食分</div>
         </div>
-        <div>
-          <div class="item-qty" id="noodle-qty">—</div>
+        <div class="item-qty-wrap">
+          <div class="item-qty" id="noodle-qty">-</div>
           <div class="item-unit">食</div>
         </div>
-        <a class="affiliate-btn" id="noodle-link" href="#" target="_blank" rel="noopener">Amazonで見る</a>
       </div>
       <div class="item-row">
         <div class="item-info">
           <div class="item-name">缶詰（魚・肉・野菜）</div>
-          <div style="font-size:12px;color:var(--muted)">1人2日に1缶</div>
+          <div class="item-desc">1人2日に1缶</div>
         </div>
-        <div>
-          <div class="item-qty" id="can-qty">—</div>
+        <div class="item-qty-wrap">
+          <div class="item-qty" id="can-qty">-</div>
           <div class="item-unit">缶</div>
         </div>
-        <a class="affiliate-btn" id="can-link" href="#" target="_blank" rel="noopener">Amazonで見る</a>
       </div>
     </div>
 
@@ -492,28 +454,26 @@
       <div class="item-row">
         <div class="item-info">
           <div class="item-name">カセットガスボンベ</div>
-          <div style="font-size:12px;color:var(--muted)">1本で約60〜90分調理可能</div>
+          <div class="item-desc">1本で約60〜90分の調理が可能</div>
         </div>
-        <div>
-          <div class="item-qty" id="gas-qty">—</div>
+        <div class="item-qty-wrap">
+          <div class="item-qty" id="gas-qty">-</div>
           <div class="item-unit">本</div>
         </div>
-        <a class="affiliate-btn" id="gas-link" href="#" target="_blank" rel="noopener">Amazonで見る</a>
       </div>
       <div class="item-row">
         <div class="item-info">
           <div class="item-name">モバイルバッテリー（大容量）</div>
-          <div style="font-size:12px;color:var(--muted)">20,000mAh以上推奨</div>
+          <div class="item-desc">20,000mAh以上を目安に</div>
         </div>
-        <div>
-          <div class="item-qty" id="battery-qty">—</div>
+        <div class="item-qty-wrap">
+          <div class="item-qty" id="battery-qty">-</div>
           <div class="item-unit">個</div>
         </div>
-        <a class="affiliate-btn" id="battery-link" href="#" target="_blank" rel="noopener">Amazonで見る</a>
       </div>
     </div>
 
-    <!-- 衛生・その他 -->
+    <!-- 衛生・生活用品 -->
     <div class="category">
       <div class="category-header">
         <span class="icon">🧴</span>
@@ -522,90 +482,81 @@
       <div class="item-row">
         <div class="item-info">
           <div class="item-name">トイレットペーパー</div>
-          <div style="font-size:12px;color:var(--muted)">1人1日0.5ロール目安</div>
+          <div class="item-desc">1人1日0.5ロール目安</div>
         </div>
-        <div>
-          <div class="item-qty" id="tp-qty">—</div>
+        <div class="item-qty-wrap">
+          <div class="item-qty" id="tp-qty">-</div>
           <div class="item-unit">ロール</div>
         </div>
-        <a class="affiliate-btn" id="tp-link" href="#" target="_blank" rel="noopener">Amazonで見る</a>
       </div>
       <div class="item-row">
         <div class="item-info">
           <div class="item-name">除菌ウェットシート</div>
-          <div style="font-size:12px;color:var(--muted)">断水時の身体ケアに</div>
+          <div class="item-desc">断水時の身体ケアに活用できます</div>
         </div>
-        <div>
-          <div class="item-qty" id="wet-qty">—</div>
+        <div class="item-qty-wrap">
+          <div class="item-qty" id="wet-qty">-</div>
           <div class="item-unit">パック</div>
         </div>
-        <a class="affiliate-btn" id="wet-link" href="#" target="_blank" rel="noopener">Amazonで見る</a>
       </div>
-      <!-- ↓ 生理用品（追加） -->
       <div class="item-row">
         <div class="item-info">
           <div class="item-name">生理用品</div>
-          <div style="font-size:12px;color:var(--muted)">必要な人は1周期分以上を目安に</div>
+          <div class="item-desc">必要な方は1周期分以上を目安に</div>
         </div>
-        <div>
+        <div class="item-qty-wrap">
           <div class="item-qty">1</div>
-          <div class="item-unit">パック</div>
+          <div class="item-unit">パック以上</div>
         </div>
-        <a class="affiliate-btn" id="sanitary-link" href="https://www.amazon.co.jp/s?k=生理用品+まとめ買い&tag=sasakitamotu-22" target="_blank" rel="noopener">Amazonで見る</a>
       </div>
-      <!-- ↑ 生理用品（追加ここまで） -->
     </div>
 
-    <!-- 赤ちゃん・乳幼児 -->
+    <!-- 乳幼児 -->
     <div class="category" id="baby-section" style="display:none">
       <div class="category-header">
         <span class="icon">👶</span>
         <h3>乳幼児用品</h3>
-        <span class="total-cost" id="baby-count-label"></span>
+        <span class="count-label" id="baby-count-label"></span>
       </div>
       <div class="item-row">
         <div class="item-info">
           <div class="item-name">粉ミルク・液体ミルク</div>
-          <div style="font-size:12px;color:var(--muted)">1日6〜8回授乳、1缶約130回分</div>
+          <div class="item-desc">1日6〜8回授乳、1缶約130回分</div>
         </div>
-        <div>
-          <div class="item-qty" id="milk-qty">—</div>
+        <div class="item-qty-wrap">
+          <div class="item-qty" id="milk-qty">-</div>
           <div class="item-unit">缶</div>
         </div>
-        <a class="affiliate-btn" id="milk-link" href="#" target="_blank" rel="noopener">Amazonで見る</a>
       </div>
       <div class="item-row">
         <div class="item-info">
           <div class="item-name">紙おむつ</div>
-          <div style="font-size:12px;color:var(--muted)">1日6〜8枚目安</div>
+          <div class="item-desc">1日6〜8枚目安</div>
         </div>
-        <div>
-          <div class="item-qty" id="diaper-qty">—</div>
+        <div class="item-qty-wrap">
+          <div class="item-qty" id="diaper-qty">-</div>
           <div class="item-unit">枚</div>
         </div>
-        <a class="affiliate-btn" id="diaper-link" href="#" target="_blank" rel="noopener">Amazonで見る</a>
       </div>
       <div class="item-row">
         <div class="item-info">
           <div class="item-name">おしりふき</div>
-          <div style="font-size:12px;color:var(--muted)">1日15〜20枚、80枚入り1パック</div>
+          <div class="item-desc">1日15〜20枚、80枚入り1パック</div>
         </div>
-        <div>
-          <div class="item-qty" id="babywipe-qty">—</div>
+        <div class="item-qty-wrap">
+          <div class="item-qty" id="babywipe-qty">-</div>
           <div class="item-unit">パック</div>
         </div>
-        <a class="affiliate-btn" id="babywipe-link" href="#" target="_blank" rel="noopener">Amazonで見る</a>
       </div>
       <div class="item-row">
         <div class="item-info">
           <div class="item-name">ベビーフード（離乳食）</div>
-          <div style="font-size:12px;color:var(--muted)">1日3食分（5か月〜）</div>
+          <div class="item-desc">1日3食分（5か月以降が目安）</div>
         </div>
-        <div>
-          <div class="item-qty" id="babyfood-qty">—</div>
+        <div class="item-qty-wrap">
+          <div class="item-qty" id="babyfood-qty">-</div>
           <div class="item-unit">個</div>
         </div>
-        <a class="affiliate-btn" id="babyfood-link" href="#" target="_blank" rel="noopener">Amazonで見る</a>
       </div>
     </div>
 
@@ -614,62 +565,57 @@
       <div class="category-header">
         <span class="icon">🐾</span>
         <h3>ペット用品</h3>
-        <span class="total-cost" id="pet-count-label"></span>
+        <span class="count-label" id="pet-count-label"></span>
       </div>
       <div class="item-row">
         <div class="item-info">
           <div class="item-name">🐶 ドッグフード（ドライ）</div>
-          <div style="font-size:12px;color:var(--muted)">中型犬1日250g目安</div>
+          <div class="item-desc">中型犬1日250g目安</div>
         </div>
-        <div>
-          <div class="item-qty" id="petfood-dog-qty">—</div>
+        <div class="item-qty-wrap">
+          <div class="item-qty" id="petfood-dog-qty">-</div>
           <div class="item-unit">kg</div>
         </div>
-        <a class="affiliate-btn" id="petfood-dog-link" href="#" target="_blank" rel="noopener">Amazonで見る</a>
       </div>
       <div class="item-row">
         <div class="item-info">
           <div class="item-name">🐱 キャットフード（ドライ）</div>
-          <div style="font-size:12px;color:var(--muted)">猫1日60g目安</div>
+          <div class="item-desc">猫1日60g目安</div>
         </div>
-        <div>
-          <div class="item-qty" id="petfood-cat-qty">—</div>
+        <div class="item-qty-wrap">
+          <div class="item-qty" id="petfood-cat-qty">-</div>
           <div class="item-unit">kg</div>
         </div>
-        <a class="affiliate-btn" id="petfood-cat-link" href="#" target="_blank" rel="noopener">Amazonで見る</a>
       </div>
       <div class="item-row">
         <div class="item-info">
           <div class="item-name">ペット用水</div>
-          <div style="font-size:12px;color:var(--muted)">体重1kgあたり50ml/日（中型犬：約1L/日）</div>
+          <div class="item-desc">体重1kgあたり50ml/日（中型犬：約1L/日）</div>
         </div>
-        <div>
-          <div class="item-qty" id="petwater-qty">—</div>
+        <div class="item-qty-wrap">
+          <div class="item-qty" id="petwater-qty">-</div>
           <div class="item-unit">リットル</div>
         </div>
-        <a class="affiliate-btn" id="petwater-link" href="#" target="_blank" rel="noopener">Amazonで見る</a>
       </div>
       <div class="item-row">
         <div class="item-info">
           <div class="item-name">ペットシーツ</div>
-          <div style="font-size:12px;color:var(--muted)">1頭1日3〜4枚（室内排泄用）</div>
+          <div class="item-desc">1頭1日3〜4枚（室内排泄用）</div>
         </div>
-        <div>
-          <div class="item-qty" id="petsheet-qty">—</div>
+        <div class="item-qty-wrap">
+          <div class="item-qty" id="petsheet-qty">-</div>
           <div class="item-unit">枚</div>
         </div>
-        <a class="affiliate-btn" id="petsheet-link" href="#" target="_blank" rel="noopener">Amazonで見る</a>
       </div>
       <div class="item-row">
         <div class="item-info">
           <div class="item-name">キャリーバッグ・ケージ</div>
-          <div style="font-size:12px;color:var(--muted)">避難時の必須アイテム（1頭1個）</div>
+          <div class="item-desc">避難時の移動に必要（1頭1個）</div>
         </div>
-        <div>
-          <div class="item-qty" id="petcarry-qty">—</div>
+        <div class="item-qty-wrap">
+          <div class="item-qty" id="petcarry-qty">-</div>
           <div class="item-unit">個</div>
         </div>
-        <a class="affiliate-btn" id="petcarry-link" href="#" target="_blank" rel="noopener">Amazonで見る</a>
       </div>
     </div>
 
@@ -678,302 +624,206 @@
       <div class="category-header">
         <span class="icon">👴</span>
         <h3>高齢者・介護用品</h3>
-        <span class="total-cost" id="elderly-count-label"></span>
+        <span class="count-label" id="elderly-count-label"></span>
       </div>
       <div class="item-row">
         <div class="item-info">
           <div class="item-name">大人用紙おむつ・パッド</div>
-          <div style="font-size:12px;color:var(--muted)">1人1日4〜6枚目安</div>
+          <div class="item-desc">1人1日4〜6枚目安</div>
         </div>
-        <div>
-          <div class="item-qty" id="adult-diaper-qty">—</div>
+        <div class="item-qty-wrap">
+          <div class="item-qty" id="adult-diaper-qty">-</div>
           <div class="item-unit">枚</div>
         </div>
-        <a class="affiliate-btn" id="adult-diaper-link" href="#" target="_blank" rel="noopener">Amazonで見る</a>
       </div>
       <div class="item-row">
         <div class="item-info">
           <div class="item-name">介護用ウェットタオル（全身清拭用）</div>
-          <div style="font-size:12px;color:var(--muted)">断水時の身体ケア必須</div>
+          <div class="item-desc">断水時の身体ケアに活用できます</div>
         </div>
-        <div>
-          <div class="item-qty" id="care-wipe-qty">—</div>
+        <div class="item-qty-wrap">
+          <div class="item-qty" id="care-wipe-qty">-</div>
           <div class="item-unit">パック</div>
         </div>
-        <a class="affiliate-btn" id="care-wipe-link" href="#" target="_blank" rel="noopener">Amazonで見る</a>
       </div>
       <div class="item-row">
         <div class="item-info">
           <div class="item-name">やわらか食・介護食（レトルト）</div>
-          <div style="font-size:12px;color:var(--muted)">1人1日3食分</div>
+          <div class="item-desc">1人1日3食分</div>
         </div>
-        <div>
-          <div class="item-qty" id="care-food-qty">—</div>
+        <div class="item-qty-wrap">
+          <div class="item-qty" id="care-food-qty">-</div>
           <div class="item-unit">食</div>
         </div>
-        <a class="affiliate-btn" id="care-food-link" href="#" target="_blank" rel="noopener">Amazonで見る</a>
       </div>
       <div class="item-row">
         <div class="item-info">
           <div class="item-name">常備薬・処方薬の予備</div>
-          <div style="font-size:12px;color:var(--muted)">かかりつけ医に「多めに処方」を相談</div>
+          <div class="item-desc">かかりつけ医への相談をご検討ください</div>
         </div>
-        <div>
-          <div class="item-qty" id="medicine-qty">—</div>
+        <div class="item-qty-wrap">
+          <div class="item-qty" id="medicine-qty">-</div>
           <div class="item-unit">日分</div>
         </div>
-        <a class="affiliate-btn" id="medicine-link" href="https://www.amazon.co.jp/s?k=常備薬+救急セット" target="_blank" rel="noopener">Amazonで見る</a>
       </div>
     </div>
 
-    <!-- SUMMARY -->
+    <!-- サマリー -->
     <div class="summary-box">
-      <h3>▸ サマリー</h3>
+      <h3>▸ 入力内容の概要</h3>
       <div class="summary-item">
-        <span>大人・子ども</span><span class="val" id="sum-members">—</span>
+        <span>大人・子ども</span><span class="val" id="sum-members">-</span>
       </div>
       <div class="summary-item" id="sum-baby-row" style="display:none">
-        <span>👶 乳幼児</span><span class="val" id="sum-babies">—</span>
+        <span>👶 乳幼児</span><span class="val" id="sum-babies">-</span>
       </div>
       <div class="summary-item" id="sum-pet-row" style="display:none">
-        <span>🐾 ペット</span><span class="val" id="sum-pets">—</span>
+        <span>🐾 ペット</span><span class="val" id="sum-pets">-</span>
       </div>
       <div class="summary-item" id="sum-elderly-row" style="display:none">
-        <span>👴 高齢者・介護</span><span class="val" id="sum-elderly">—</span>
+        <span>👴 高齢者・介護</span><span class="val" id="sum-elderly">-</span>
       </div>
       <div class="summary-item">
-        <span>備蓄期間</span><span class="val" id="sum-days">—</span>
+        <span>備蓄期間</span><span class="val" id="sum-days">-</span>
       </div>
       <div class="summary-item">
-        <span>水（人間分合計）</span><span class="val" id="sum-water">—</span>
+        <span>水（人間分合計）</span><span class="val" id="sum-water">-</span>
       </div>
       <div class="summary-item">
-        <span>食料（概算カロリー）</span><span class="val" id="sum-kcal">—</span>
+        <span>食料（概算カロリー）</span><span class="val" id="sum-kcal">-</span>
       </div>
       <div class="summary-item">
-        <span>ガスボンベ</span><span class="val" id="sum-gas">—</span>
+        <span>ガスボンベ</span><span class="val" id="sum-gas">-</span>
       </div>
     </div>
 
   </div><!-- /results -->
 
-  <!-- TIPS -->
+  <!-- 備蓄のポイント -->
   <div class="tips">
-    <h2>📋 備蓄の基本ルール</h2>
+    <h2>備蓄を進めるうえでのポイント</h2>
     <div class="tip-card">
-      <strong>ローリングストック法</strong>を活用する<br>
-      備蓄品は「使いながら補充」が基本。賞味期限切れを防ぎ、常に新鮮な状態を維持できます。
+      <strong>ローリングストック</strong>の活用<br>
+      備蓄品は「使いながら補充する」方法が基本です。賞味期限切れを防ぎ、常に一定量を維持できます。
     </div>
     <div class="tip-card">
-      <strong>水は最優先</strong>で確保する<br>
-      断水・物流停止時に最初に不足するのは水。2Lペットボトルをケース単位で確保するのが効率的です。
+      <strong>水の確保</strong>を最優先に<br>
+      断水時に最初に不足しやすいのは水です。2Lペットボトルをケース単位で備えておくと管理しやすくなります。
     </div>
     <div class="tip-card">
-      <strong>分散保管</strong>が鉄則<br>
-      1か所に集中させると災害時にアクセスできなくなるリスクがあります。自宅内の複数の場所に分散させましょう。
-    </div>
-    <div class="tip-card">
-      <strong>物価上昇前</strong>に買う<br>
-      エネルギー価格が上昇すると輸送コストも上がり、食料品全体が値上がりします。今のうちに購入しておくことが節約にもなります。
+      <strong>分散保管</strong>のすすめ<br>
+      備蓄品を1か所にまとめると、災害時にアクセスできなくなる場合があります。自宅内の複数の場所に分けて保管することをお勧めします。
     </div>
   </div>
 
-  <!-- SHARE -->
-  <div class="share-area">
-    <a class="share-btn" id="twitter-share" href="#" target="_blank" rel="noopener">
-      𝕏 計算結果をシェアする
-    </a>
-  </div>
-
+  <!-- フッター -->
   <div class="footer-note">
-    ※ 本ツールの数値は内閣府・農林水産省の家庭備蓄ガイドラインを参考に算出しています。<br>
-    ※ Amazonのリンクはアソシエイトリンクです。購入時に一部が運営者の収益となります。<br>
-    ※ 実際の必要量は生活スタイルや地域によって異なります。あくまで目安としてご活用ください。
+    ※ 本ツールは家庭備蓄の目安を分かりやすく確認するための試作ツールです。<br>
+    ※ 公的判断を代替するものではありません。最終的な備蓄判断にあたっては、内閣府・お住まいの自治体が発信する情報をご確認ください。<br>
+    ※ 数値は一般的な家庭備蓄の考え方をもとにした目安であり、生活環境や地域の事情により異なります。
+  </div>
+
+  <div class="footer-meta">
+    最終更新日：2026年3月（試作版）<br>
+    制作者：（記載予定）<br>
+    問い合わせ先：（記載予定）
   </div>
 
 </div><!-- /container -->
 
 <script>
-// ===== アフィリエイトタグをここに入力 =====
-const AMAZON_TAG = 'sasakitamotu-22';
-
-const ASINS = {
-  water: 'B07F1CCSJZ',
-  rice:         'B00YC3M1K8',
-  retort:       'B084RZ3QRD',
-  noodle:       'B084RDW619',
-  can:          'B0FN47ZGTS',
-  gas: 'B000AQY0L4',
-  battery:      'B0F3CQC8JL',
-  tp:           'B008AZDTAA',
-  wet:          'B09TZSCSKS',
-  sanitary:     '', // ← ASINが決まったら入力。空のままだと検索URLにフォールバック
-  // 赤ちゃん
-  milk:         'B01N6EL2MJ',
-  diaper:       'B08HQZVG28',
-  babywipe:     'B0B3WHQLLM',
-  babyfood:     'B0DMK8WPY2',
-  // ペット
-  petfood_dog:  'B07D6GXJQQ',
-  petfood_cat:  'B09R1LRB6T',
-  petwater:     'B00BTOSMCY',
-  petsheet:     'B07JGBB8GD',
-  petcarry:     'B00OP6SMCI',
-  // 高齢者
-  adultDiaper:  'B07HC5FFS5',
-  careWipe:     'B0C4XHYYF1',
-  careFood:     'B0D7PW4CWV',
-};
-
-function amazonUrl(asin) {
-  return `https://www.amazon.co.jp/dp/${asin}?tag=${AMAZON_TAG}`;
-}
-function amazonSearchUrl(keyword) {
-  return `https://www.amazon.co.jp/s?k=${encodeURIComponent(keyword)}&tag=${AMAZON_TAG}`;
-}
-function setLink(id, asin, fallbackKeyword) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.href = asin ? amazonUrl(asin) : amazonSearchUrl(fallbackKeyword || '');
-}
-function show(id, visible) {
-  document.getElementById(id).style.display = visible ? '' : 'none';
-}
-function setText(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = val;
-}
-
-function calculate() {
-  const members = parseInt(document.getElementById('members').value)  || 0;
-  const babies  = parseInt(document.getElementById('babies').value)   || 0;
-  const pets    = parseInt(document.getElementById('pets').value)     || 0;
-  const elderly = parseInt(document.getElementById('elderly').value)  || 0;
-  const days    = parseInt(document.getElementById('days').value)     || 7;
-
-  // ── 基本 ──
-  const water   = (members + elderly) * days * 3;
-  const rice    = ((members + elderly) * days * 0.15).toFixed(1);
-  const retort  = (members + elderly) * days * 2;
-  const noodle  = (members + elderly) * days;
-  const can     = Math.ceil((members + elderly) * days / 2);
-  const gas     = Math.ceil((members + elderly) * days / 3);
-  const battery = Math.ceil((members + elderly) / 2) || 1;
-  const tp      = Math.ceil((members + elderly) * days * 0.5);
-  const wet     = Math.ceil((members + elderly) * days / 30);
-  const kcal    = Math.round((members + elderly) * days * 2000);
-
-  setText('water-qty',   water);
-  setText('rice-qty',    rice);
-  setText('retort-qty',  retort);
-  setText('noodle-qty',  noodle);
-  setText('can-qty',     can);
-  setText('gas-qty',     gas);
-  setText('battery-qty', battery);
-  setText('tp-qty',      tp);
-  setText('wet-qty',     wet);
-
-  setLink('water-link',   ASINS.water);
-  setLink('rice-link',    ASINS.rice);
-  setLink('retort-link',  ASINS.retort);
-  setLink('noodle-link',  ASINS.noodle);
-  setLink('can-link',     ASINS.can);
-  setLink('gas-link',     ASINS.gas);
-  setLink('battery-link', ASINS.battery);
-  setLink('tp-link',      ASINS.tp);
-  setLink('wet-link',     ASINS.wet);
-  // 生理用品：ASINあればdp/、なければ検索URL
-  setLink('sanitary-link', ASINS.sanitary, '生理用品 まとめ買い');
-
-  // ── 赤ちゃん ──
-  show('baby-section', babies > 0);
-  if (babies > 0) {
-    const milkCans   = Math.ceil(babies * days * 8 / 130);
-    const diapers    = babies * days * 7;
-    const babywipes  = Math.ceil(babies * days * 17 / 80);
-    const babyfood   = babies * days * 3;
-    setText('milk-qty',     milkCans);
-    setText('diaper-qty',   diapers);
-    setText('babywipe-qty', babywipes);
-    setText('babyfood-qty', babyfood);
-    setText('baby-count-label', `${babies}人分`);
-    setLink('milk-link',     ASINS.milk);
-    setLink('diaper-link',   ASINS.diaper);
-    setLink('babywipe-link', ASINS.babywipe);
-    setLink('babyfood-link', ASINS.babyfood);
+  function show(id, visible) {
+    document.getElementById(id).style.display = visible ? '' : 'none';
+  }
+  function setText(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
   }
 
-  // ── ペット ──
-  show('pet-section', pets > 0);
-  if (pets > 0) {
-    const petfoodDogKg = (pets * days * 0.25).toFixed(1);
-    const petfoodCatKg = (pets * days * 0.06).toFixed(2);
-    const petwaterL   = pets * days * 1;
-    const petsheets   = pets * days * 4;
-    const petcarry    = pets;
-    setText('petfood-dog-qty', petfoodDogKg);
-    setText('petfood-cat-qty', petfoodCatKg);
-    setText('petwater-qty',  petwaterL);
-    setText('petsheet-qty',  petsheets);
-    setText('petcarry-qty',  petcarry);
-    setText('pet-count-label', `${pets}頭分`);
-    setLink('petfood-dog-link', ASINS.petfood_dog);
-    setLink('petfood-cat-link', ASINS.petfood_cat);
-    setLink('petwater-link',  ASINS.petwater);
-    setLink('petsheet-link',  ASINS.petsheet);
-    setLink('petcarry-link',  ASINS.petcarry);
+  function calculate() {
+    const members = parseInt(document.getElementById('members').value) || 0;
+    const babies  = parseInt(document.getElementById('babies').value)  || 0;
+    const pets    = parseInt(document.getElementById('pets').value)    || 0;
+    const elderly = parseInt(document.getElementById('elderly').value) || 0;
+    const days    = parseInt(document.getElementById('days').value)    || 7;
+
+    // 基本
+    const water   = (members + elderly) * days * 3;
+    const rice    = ((members + elderly) * days * 0.15).toFixed(1);
+    const retort  = (members + elderly) * days * 2;
+    const noodle  = (members + elderly) * days;
+    const can     = Math.ceil((members + elderly) * days / 2);
+    const gas     = Math.ceil((members + elderly) * days / 3);
+    const battery = Math.ceil((members + elderly) / 2) || 1;
+    const tp      = Math.ceil((members + elderly) * days * 0.5);
+    const wet     = Math.ceil((members + elderly) * days / 30);
+    const kcal    = Math.round((members + elderly) * days * 2000);
+
+    setText('water-qty',   water);
+    setText('rice-qty',    rice);
+    setText('retort-qty',  retort);
+    setText('noodle-qty',  noodle);
+    setText('can-qty',     can);
+    setText('gas-qty',     gas);
+    setText('battery-qty', battery);
+    setText('tp-qty',      tp);
+    setText('wet-qty',     wet);
+
+    // 乳幼児
+    show('baby-section', babies > 0);
+    if (babies > 0) {
+      setText('milk-qty',     Math.ceil(babies * days * 8 / 130));
+      setText('diaper-qty',   babies * days * 7);
+      setText('babywipe-qty', Math.ceil(babies * days * 17 / 80));
+      setText('babyfood-qty', babies * days * 3);
+      setText('baby-count-label', babies + '人分');
+    }
+
+    // ペット
+    show('pet-section', pets > 0);
+    if (pets > 0) {
+      setText('petfood-dog-qty', (pets * days * 0.25).toFixed(1));
+      setText('petfood-cat-qty', (pets * days * 0.06).toFixed(2));
+      setText('petwater-qty',  pets * days);
+      setText('petsheet-qty',  pets * days * 4);
+      setText('petcarry-qty',  pets);
+      setText('pet-count-label', pets + '頭分');
+    }
+
+    // 高齢者・介護
+    show('elderly-section', elderly > 0);
+    if (elderly > 0) {
+      setText('adult-diaper-qty', elderly * days * 5);
+      setText('care-wipe-qty',    Math.ceil(elderly * days / 10));
+      setText('care-food-qty',    elderly * days * 3);
+      setText('medicine-qty',     days);
+      setText('elderly-count-label', elderly + '人分');
+    }
+
+    // サマリー
+    setText('sum-members', members + '人');
+    show('sum-baby-row',    babies > 0);
+    show('sum-pet-row',     pets > 0);
+    show('sum-elderly-row', elderly > 0);
+    setText('sum-babies',  babies + '人');
+    setText('sum-pets',    pets + '頭');
+    setText('sum-elderly', elderly + '人');
+    setText('sum-days',    days + '日分');
+    setText('sum-water',   water + 'L');
+    setText('sum-kcal',    '約' + kcal.toLocaleString() + 'kcal');
+    setText('sum-gas',     gas + '本');
+
+    // 結果タイトル
+    let label = members + '人';
+    if (babies)  label += '・乳幼児' + babies + '人';
+    if (pets)    label += '・ペット' + pets + '頭';
+    if (elderly) label += '・高齢者' + elderly + '人';
+    setText('result-title', label + '・' + days + '日分の目安');
+
+    const r = document.getElementById('results');
+    r.classList.add('show');
+    r.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
-
-  // ── 高齢者・介護 ──
-  show('elderly-section', elderly > 0);
-  if (elderly > 0) {
-    const adultDiapers = elderly * days * 5;
-    const careWipes    = Math.ceil(elderly * days / 10);
-    const careFoods    = elderly * days * 3;
-    const medicineDays = days;
-    setText('adult-diaper-qty', adultDiapers);
-    setText('care-wipe-qty',    careWipes);
-    setText('care-food-qty',    careFoods);
-    setText('medicine-qty',     medicineDays);
-    setText('elderly-count-label', `${elderly}人分`);
-    setLink('adult-diaper-link', ASINS.adultDiaper);
-    setLink('care-wipe-link',    ASINS.careWipe);
-    setLink('care-food-link',    ASINS.careFood);
-  }
-
-  // ── サマリー ──
-  setText('sum-members', `${members}人`);
-  show('sum-baby-row',    babies > 0);
-  show('sum-pet-row',     pets > 0);
-  show('sum-elderly-row', elderly > 0);
-  setText('sum-babies',  `${babies}人`);
-  setText('sum-pets',    `${pets}頭`);
-  setText('sum-elderly', `${elderly}人`);
-  setText('sum-days',    `${days}日分`);
-  setText('sum-water',   `${water}L`);
-  setText('sum-kcal',    `約${kcal.toLocaleString()}kcal`);
-  setText('sum-gas',     `${gas}本`);
-
-  // 家族構成ラベル
-  let label = `${members}人`;
-  if (babies)  label += `・赤ちゃん${babies}人`;
-  if (pets)    label += `・ペット${pets}頭`;
-  if (elderly) label += `・高齢者${elderly}人`;
-  setText('result-title', `${label}・${days}日分の必要量`);
-
-  // Xシェア
-  let shareText = `【非常時備蓄チェック】${label}・${days}日分\n💧水：${water}L\n🍚米：${rice}kg\n🔥ガスボンベ：${gas}本\n`;
-  if (babies)  shareText += `👶おむつ：${babies * days * 7}枚\n`;
-  if (pets)    shareText += `🐾ペットフード：${(pets * days * 0.16).toFixed(1)}kg\n`;
-  if (elderly) shareText += `👴介護食：${elderly * days * 3}食\n`;
-  shareText += `\n▼無料計算ツール\nhttps://siki0524-a11y.github.io/bichiku-checker/`;
-  document.getElementById('twitter-share').href =
-    `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
-
-  const r = document.getElementById('results');
-  r.classList.add('show');
-  r.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
 </script>
 </body>
 </html>
