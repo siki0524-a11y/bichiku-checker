@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>家庭備蓄の目安確認ツール（提案版）</title>
+  <link rel="stylesheet" href="../shared/css/base.css">
+</head>
+<body>
+  <div class="header">
+    <span class="header-badge">防災啓発支援ツール</span>
+    <span class="header-title">家庭備蓄の目安確認ツール（提案版）</span>
+  </div>
+
+  <div class="container">
+    <div class="hero">
+      <h1>家族構成に応じた<br>家庭備蓄の目安</h1>
+      <p>
+        人数や日数などの条件から、家庭で備えておきたい物資の目安を確認できます。<br>
+        乳幼児・ペット・高齢者がいるご家庭にも対応しています。
+      </p>
+    </div>
+
+    <div class="calc-panel">
+      <h2>▸ 家族構成・備蓄期間を入力</h2>
+      <div class="inputs-row">
+        <div class="input-group">
+          <label>大人・子どもの人数</label>
+          <input type="number" id="members" value="2" min="0" max="20">
+        </div>
+        <div class="input-group">
+          <label>備えたい日数</label>
+          <select id="days">
+            <option value="3">3日間（最低ライン）</option>
+            <option value="7" selected>7日間（推奨）</option>
+            <option value="14">14日間（安心）</option>
+            <option value="30">30日間（長期備蓄）</option>
+          </select>
+        </div>
+      </div>
+      <div class="inputs-row" style="margin-bottom: 8px">
+        <div class="input-group">
+          <label>👶 乳幼児（0〜2歳）の人数</label>
+          <input type="number" id="babies" value="0" min="0" max="10">
+        </div>
+        <div class="input-group">
+          <label>🐾 ペット（犬・猫）の頭数</label>
+          <input type="number" id="pets" value="0" min="0" max="10">
+        </div>
+      </div>
+      <div class="inputs-row">
+        <div class="input-group">
+          <label>👴 高齢者・介護が必要な方</label>
+          <input type="number" id="elderly" value="0" min="0" max="10">
+        </div>
+        <div class="input-group" style="display: flex; align-items: flex-end">
+          <div style="font-size: 11px; color: var(--muted); line-height: 1.8; padding-bottom: 4px">
+            ペット：中型犬・猫1頭換算<br>高齢者：常備薬・介護用品を追加表示
+          </div>
+        </div>
+      </div>
+      <button class="calc-btn" onclick="calculate()">目安を確認する</button>
+    </div>
+
+    <div class="results" id="results">
+      <div class="result-header">
+        <h2 id="result-title">目安一覧</h2>
+        <span class="result-badge">算出完了</span>
+      </div>
+
+      <div class="category">
+        <div class="category-header">
+          <span class="icon">💧</span>
+          <h3>水</h3>
+        </div>
+        <div class="item-row">
+          <div class="item-info">
+            <div class="item-name">飲料水・生活用水</div>
+            <div class="item-desc">1人1日3L（飲料・調理・衛生用途の合計）</div>
+          </div>
+          <div class="item-qty-wrap">
+            <div class="item-qty" id="water-qty">-</div>
+            <div class="item-unit">リットル</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="category">
+        <div class="category-header">
+          <span class="icon">🍚</span>
+          <h3>食料</h3>
+        </div>
+        <div class="item-row"><div class="item-info"><div class="item-name">白米・無洗米</div><div class="item-desc">1人1日0.15kg（茶碗2〜3杯分）</div></div><div class="item-qty-wrap"><div class="item-qty" id="rice-qty">-</div><div class="item-unit">kg</div></div></div>
+        <div class="item-row"><div class="item-info"><div class="item-name">レトルト食品</div><div class="item-desc">1人1日2食分（カレー・パスタソース等）</div></div><div class="item-qty-wrap"><div class="item-qty" id="retort-qty">-</div><div class="item-unit">パック</div></div></div>
+        <div class="item-row"><div class="item-info"><div class="item-name">インスタント麺・カップ麺</div><div class="item-desc">1人1日1食分</div></div><div class="item-qty-wrap"><div class="item-qty" id="noodle-qty">-</div><div class="item-unit">食</div></div></div>
+        <div class="item-row"><div class="item-info"><div class="item-name">缶詰（魚・肉・野菜）</div><div class="item-desc">1人2日に1缶</div></div><div class="item-qty-wrap"><div class="item-qty" id="can-qty">-</div><div class="item-unit">缶</div></div></div>
+      </div>
+
+      <div class="category">
+        <div class="category-header"><span class="icon">🔥</span><h3>エネルギー・燃料</h3></div>
+        <div class="item-row"><div class="item-info"><div class="item-name">カセットガスボンベ</div><div class="item-desc">1本で約60〜90分の調理が可能</div></div><div class="item-qty-wrap"><div class="item-qty" id="gas-qty">-</div><div class="item-unit">本</div></div></div>
+        <div class="item-row"><div class="item-info"><div class="item-name">モバイルバッテリー（大容量）</div><div class="item-desc">20,000mAh以上を目安に</div></div><div class="item-qty-wrap"><div class="item-qty" id="battery-qty">-</div><div class="item-unit">個</div></div></div>
+      </div>
+
+      <div class="category">
+        <div class="category-header"><span class="icon">🧴</span><h3>衛生・生活用品</h3></div>
+        <div class="item-row"><div class="item-info"><div class="item-name">トイレットペーパー</div><div class="item-desc">1人1日0.5ロール目安</div></div><div class="item-qty-wrap"><div class="item-qty" id="tp-qty">-</div><div class="item-unit">ロール</div></div></div>
+        <div class="item-row"><div class="item-info"><div class="item-name">除菌ウェットシート</div><div class="item-desc">断水時の身体ケアに活用できます</div></div><div class="item-qty-wrap"><div class="item-qty" id="wet-qty">-</div><div class="item-unit">パック</div></div></div>
+        <div class="item-row"><div class="item-info"><div class="item-name">生理用品</div><div class="item-desc">必要な方は1周期分以上を目安に</div></div><div class="item-qty-wrap"><div class="item-qty">1</div><div class="item-unit">パック以上</div></div></div>
+      </div>
+
+      <div class="category" id="baby-section" style="display:none">
+        <div class="category-header"><span class="icon">👶</span><h3>乳幼児用品</h3><span class="count-label" id="baby-count-label"></span></div>
+        <div class="item-row"><div class="item-info"><div class="item-name">粉ミルク・液体ミルク</div><div class="item-desc">1日6〜8回授乳、1缶約130回分</div></div><div class="item-qty-wrap"><div class="item-qty" id="milk-qty">-</div><div class="item-unit">缶</div></div></div>
+        <div class="item-row"><div class="item-info"><div class="item-name">紙おむつ</div><div class="item-desc">1日6〜8枚目安</div></div><div class="item-qty-wrap"><div class="item-qty" id="diaper-qty">-</div><div class="item-unit">枚</div></div></div>
+        <div class="item-row"><div class="item-info"><div class="item-name">おしりふき</div><div class="item-desc">1日15〜20枚、80枚入り1パック</div></div><div class="item-qty-wrap"><div class="item-qty" id="babywipe-qty">-</div><div class="item-unit">パック</div></div></div>
+        <div class="item-row"><div class="item-info"><div class="item-name">ベビーフード（離乳食）</div><div class="item-desc">1日3食分（5か月以降が目安）</div></div><div class="item-qty-wrap"><div class="item-qty" id="babyfood-qty">-</div><div class="item-unit">個</div></div></div>
+      </div>
+
+      <div class="category" id="pet-section" style="display:none">
+        <div class="category-header"><span class="icon">🐾</span><h3>ペット用品</h3><span class="count-label" id="pet-count-label"></span></div>
+        <div class="item-row"><div class="item-info"><div class="item-name">🐶 ドッグフード（ドライ）</div><div class="item-desc">中型犬1日250g目安</div></div><div class="item-qty-wrap"><div class="item-qty" id="petfood-dog-qty">-</div><div class="item-unit">kg</div></div></div>
+        <div class="item-row"><div class="item-info"><div class="item-name">🐱 キャットフード（ドライ）</div><div class="item-desc">猫1日60g目安</div></div><div class="item-qty-wrap"><div class="item-qty" id="petfood-cat-qty">-</div><div class="item-unit">kg</div></div></div>
+        <div class="item-row"><div class="item-info"><div class="item-name">ペット用水</div><div class="item-desc">体重1kgあたり50ml/日（中型犬：約1L/日）</div></div><div class="item-qty-wrap"><div class="item-qty" id="petwater-qty">-</div><div class="item-unit">リットル</div></div></div>
+        <div class="item-row"><div class="item-info"><div class="item-name">ペットシーツ</div><div class="item-desc">1頭1日3〜4枚（室内排泄用）</div></div><div class="item-qty-wrap"><div class="item-qty" id="petsheet-qty">-</div><div class="item-unit">枚</div></div></div>
+        <div class="item-row"><div class="item-info"><div class="item-name">キャリーバッグ・ケージ</div><div class="item-desc">避難時の移動に必要（1頭1個）</div></div><div class="item-qty-wrap"><div class="item-qty" id="petcarry-qty">-</div><div class="item-unit">個</div></div></div>
+      </div>
+
+      <div class="category" id="elderly-section" style="display:none">
+        <div class="category-header"><span class="icon">👴</span><h3>高齢者・介護用品</h3><span class="count-label" id="elderly-count-label"></span></div>
+        <div class="item-row"><div class="item-info"><div class="item-name">大人用紙おむつ・パッド</div><div class="item-desc">1人1日4〜6枚目安</div></div><div class="item-qty-wrap"><div class="item-qty" id="adult-diaper-qty">-</div><div class="item-unit">枚</div></div></div>
+        <div class="item-row"><div class="item-info"><div class="item-name">介護用ウェットタオル（全身清拭用）</div><div class="item-desc">断水時の身体ケアに活用できます</div></div><div class="item-qty-wrap"><div class="item-qty" id="care-wipe-qty">-</div><div class="item-unit">パック</div></div></div>
+        <div class="item-row"><div class="item-info"><div class="item-name">やわらか食・介護食（レトルト）</div><div class="item-desc">1人1日3食分</div></div><div class="item-qty-wrap"><div class="item-qty" id="care-food-qty">-</div><div class="item-unit">食</div></div></div>
+        <div class="item-row"><div class="item-info"><div class="item-name">常備薬・処方薬の予備</div><div class="item-desc">かかりつけ医への相談をご検討ください</div></div><div class="item-qty-wrap"><div class="item-qty" id="medicine-qty">-</div><div class="item-unit">日分</div></div></div>
+      </div>
+
+      <div class="summary-box">
+        <h3>▸ 入力内容の概要</h3>
+        <div class="summary-item"><span>大人・子ども</span><span class="val" id="sum-members">-</span></div>
+        <div class="summary-item" id="sum-baby-row" style="display:none"><span>👶 乳幼児</span><span class="val" id="sum-babies">-</span></div>
+        <div class="summary-item" id="sum-pet-row" style="display:none"><span>🐾 ペット</span><span class="val" id="sum-pets">-</span></div>
+        <div class="summary-item" id="sum-elderly-row" style="display:none"><span>👴 高齢者・介護</span><span class="val" id="sum-elderly">-</span></div>
+        <div class="summary-item"><span>備蓄期間</span><span class="val" id="sum-days">-</span></div>
+        <div class="summary-item"><span>水（人間分合計）</span><span class="val" id="sum-water">-</span></div>
+        <div class="summary-item"><span>食料（概算カロリー）</span><span class="val" id="sum-kcal">-</span></div>
+        <div class="summary-item"><span>ガスボンベ</span><span class="val" id="sum-gas">-</span></div>
+      </div>
+    </div>
+
+    <div class="tips">
+      <h2>備蓄を進めるうえでのポイント</h2>
+      <div class="tip-card"><strong>ローリングストック</strong>の活用<br>備蓄品は「使いながら補充する」方法が基本です。賞味期限切れを防ぎ、常に一定量を維持できます。</div>
+      <div class="tip-card"><strong>水の確保</strong>を最優先に<br>断水時に最初に不足しやすいのは水です。2Lペットボトルをケース単位で備えておくと管理しやすくなります。</div>
+      <div class="tip-card"><strong>分散保管</strong>のすすめ<br>備蓄品を1か所にまとめると、災害時にアクセスできなくなる場合があります。自宅内の複数の場所に分けて保管することをお勧めします。</div>
+    </div>
+
+    <div class="footer-note">
+      ※ 本ツールは家庭備蓄の目安を分かりやすく確認するための提案版です。<br>
+      ※ 公的判断を代替するものではありません。最終的な備蓄判断にあたっては、内閣府・お住まいの自治体が発信する情報をご確認ください。<br>
+      ※ 数値は一般的な家庭備蓄の考え方をもとにした目安であり、生活環境や地域の事情により異なります。
+    </div>
+    <div class="footer-meta">
+      最終更新日：2026年4月（提案版）<br>
+      制作者：（記載予定）<br>
+      問い合わせ先：（記載予定）
+    </div>
+  </div>
+
+  <script src="../shared/js/core.js"></script>
+  <script src="../shared/js/proposal.js"></script>
+</body>
+</html>
