@@ -1,4 +1,4 @@
-const AMAZON_AFFILIATE_TAG = "example-22";
+const AMAZON_AFFILIATE_TAG = "sasakitamotu-22";
 
 function setAffiliateLink(id, keyword) {
   const link = document.getElementById(id);
