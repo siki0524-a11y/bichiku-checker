@@ -12,7 +12,7 @@ window.afterCalculate = function afterCalculateRevenue(inputs) {
   if (section) section.style.display = "";
 
   const family = "備蓄 " + inputs.days + "日";
-  setAffiliateLink("rec-water", family + " 保存水 2L");
+  setAffiliateLink("water-link", family + " 保存水 2L");
   setAffiliateLink("rec-food", family + " レトルト 非常食");
   setAffiliateLink("rec-hygiene", family + " 衛生用品 生理用品");
   setAffiliateLink("rec-power", family + " モバイルバッテリー カセットガス");

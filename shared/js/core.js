@@ -17,6 +17,31 @@ function calculate() {
 
   const peopleTotal = members + elderly;
   const water = peopleTotal * days * 3;
+  const bottleSize = 2;
+  const bottlesPerCase = 6;
+  const caseLiters = bottleSize * bottlesPerCase;
+
+  const neededCases = Math.ceil(water / caseLiters);
+  const shortageText = `あと${water}L必要（約${neededCases}ケース）`;
+
+  let waterShortageEl = document.getElementById("water-shortage");
+  if (!waterShortageEl) {
+    const qtyEl = document.getElementById("water-qty");
+    const row = qtyEl && qtyEl.closest(".item-row");
+    const itemInfo = row && row.querySelector(".item-info");
+    if (itemInfo) {
+      waterShortageEl = document.createElement("div");
+      waterShortageEl.id = "water-shortage";
+      waterShortageEl.style.fontSize = "12px";
+      waterShortageEl.style.color = "#b00020";
+      waterShortageEl.style.fontWeight = "700";
+      waterShortageEl.style.marginTop = "4px";
+      const desc = itemInfo.querySelector(".item-desc");
+      if (desc) desc.insertAdjacentElement("afterend", waterShortageEl);
+      else itemInfo.appendChild(waterShortageEl);
+    }
+  }
+  if (waterShortageEl) waterShortageEl.textContent = shortageText;
   const rice = (peopleTotal * days * 0.15).toFixed(1);
   const retort = peopleTotal * days * 2;
   const noodle = peopleTotal * days;
